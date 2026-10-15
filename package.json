@@ -1,0 +1,27 @@
+{
+  "name": "omnidelicias-api-newman",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Automa\u00e7\u00e3o de testes de API com Postman e Newman",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "validate": "node scripts/validate-config.js",
+    "test": "npm run validate && node scripts/run-tests.js all",
+    "test:smoke": "npm run validate && node scripts/run-tests.js smoke",
+    "test:auth": "npm run validate && node scripts/run-tests.js auth",
+    "test:crud": "npm run validate && node scripts/run-tests.js crud",
+    "test:negative": "npm run validate && node scripts/run-tests.js negative",
+    "test:regression": "npm run validate && node scripts/run-tests.js regression",
+    "test:smtp": "npm run validate && node scripts/run-tests.js smtp",
+    "test:smtp:happy": "npm run validate && node scripts/generate-smtp-happy-path.js && node scripts/run-tests.js smtp-happy",
+    "test:happy:read": "npm run validate && node scripts/generate-happy-path-suite.js && node scripts/run-tests.js happy-read",
+    "test:happy": "npm run validate && node scripts/generate-happy-path-suite.js && node scripts/run-tests.js happy",
+    "report": "node scripts/list-reports.js"
+  },
+  "devDependencies": {
+    "newman": "^6.2.1",
+    "newman-reporter-htmlextra": "^1.23.1"
+  }
+}

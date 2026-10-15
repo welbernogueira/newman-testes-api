@@ -1,0 +1,8 @@
+node_modules/
+.env
+.env.*
+!.env.example
+reports/*
+!reports/.gitkeep
+postman/environments/*.json
+!postman/environments/*.example.postman_environment.json
