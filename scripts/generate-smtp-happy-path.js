@@ -12,6 +12,25 @@ if (!auth || !originalSmtp || originalSmtp.item?.length !== 5) throw new Error('
 const login = JSON.parse(JSON.stringify(auth.item.find((item) => item.name.includes('POST /oauth/login'))));
 const smtp = JSON.parse(JSON.stringify(originalSmtp.item));
 const [create, list, detail, update, remove] = smtp;
+login.event = [{
+  listen: 'test',
+  script: { type: 'text/javascript', exec: [
+    "const loginHttpOk = pm.response && pm.response.code === 200;",
+    "pm.test('Login responde HTTP 200', function () { pm.expect(pm.response.code).to.eql(200); });",
+    'if (loginHttpOk) {',
+    '  let loginBody = {}; try { loginBody = pm.response.json() || {}; } catch (e) {}',
+    '  const loginToken = loginBody.token || loginBody;',
+    '  const accessToken = loginToken && loginToken.access_token;',
+    "  pm.test('Login retorna token de acesso', function () { pm.expect(accessToken).to.be.a('string').and.not.empty; });",
+    "  if (typeof accessToken === 'string' && accessToken.length > 0) {",
+    "    pm.collectionVariables.set('access_token', accessToken);",
+    "    pm.environment.set('access_token', accessToken);",
+    "    pm.collectionVariables.set('refresh_token', loginToken.refresh_token);",
+    "    pm.environment.set('refresh_token', loginToken.refresh_token);",
+    '  } else { postman.setNextRequest(null); }',
+    '} else { postman.setNextRequest(null); }'
+  ] }
+}];
 const createdName = '[TESTE] SMTP Happy Path {{smtpTestRunId}}';
 const cleanupName = remove.name;
 

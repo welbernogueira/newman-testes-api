@@ -1,0 +1,57 @@
+{
+  "scenarioId": "CEN-02",
+  "workbookRow": 3,
+  "requests": [
+    {
+      "purpose": "Existência de tags",
+      "method": "GET",
+      "path": "/omnidesk/tags?search=&page=0&size=10",
+      "httpStatus": 200,
+      "records": 10,
+      "recordsWithName": 10,
+      "fields": [
+        "id",
+        "nome",
+        "status"
+      ]
+    },
+    {
+      "purpose": "Status, valores de apoio e datas",
+      "method": "GET",
+      "path": "/omnidesk/status-ticket/lista",
+      "httpStatus": 200,
+      "records": 10,
+      "recordsWithName": 10,
+      "justificativaFieldTypes": {
+        "number": 10
+      },
+      "expectedLabelsFoundInJustificativaField": {
+        "Obrigatória": 0,
+        "Opcional": 0
+      },
+      "dateFieldsPresentAndParseable": {
+        "dataCadastro": 10,
+        "dataUpdate": 10
+      },
+      "fields": [
+        "dataCadastro",
+        "dataUpdate",
+        "id",
+        "idEmpresa",
+        "justificativa",
+        "nome",
+        "status",
+        "tipoStatus",
+        "tipoTicket"
+      ]
+    }
+  ],
+  "frontend": {
+    "attemptedUrl": "http://localhost:4200/",
+    "tcpListener4200": false,
+    "tcpListener5173": false,
+    "browserMessage": "A navegação para a página da Web foi cancelada",
+    "screenshot": "frontend-localhost-4200-indisponivel.png"
+  },
+  "interpretation": "Foram encontrados 10 status com nome e 10 tags via API (HTTP 200). Isso não valida o componente, a paleta ou a legibilidade no front-end indisponível."
+}

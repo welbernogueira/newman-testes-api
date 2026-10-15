@@ -1,0 +1,1016 @@
+{
+  "collection": {
+    "_": {
+      "postman_id": "ce8cccc9-a170-464c-a7d5-bb3091e76f79"
+    },
+    "item": [
+      {
+        "id": "d121ea8a-1fdc-4333-9f6d-fd664f647c5e",
+        "name": "Autenticação",
+        "item": [
+          {
+            "id": "0db94435-99fc-4083-a6af-ae045c7279dd",
+            "name": "POST /oauth/login  <-- comece por aqui",
+            "request": {
+              "description": {
+                "content": "Troca usuario e senha por token. O script de teste guarda access_token e refresh_token nas variaveis da collection, e os demais requests herdam o bearer.\n\nPreencha `username` e `password` no environment. Nenhum client_secret e necessario: ele fica no servidor da API.\n\nNAO use token obtido direto no Keycloak, nem token do ShowNet: a API so aceita o realm `omnidesk`.\n\nCOMO LER A RESPOSTA\n\n  Connection refused / socket hang up\n     A API nao esta rodando. Nao e erro de token.\n\n  401 em endpoint de negocio\n     O token nao foi aceito. Quase sempre e token do realm errado:\n     a API so aceita o realm `omnidesk`. Token do ShowNet / `Omnilink PRD`\n     (client `omnilink-php`) e recusado no issuer, por mais valido que seja.\n     Confira a claim `iss` do seu token em jwt.io.\n\n  403 em endpoint de negocio\n     O token foi ACEITO. Falta permissao. Renovar ou logar de novo nao resolve:\n     as permissoes vem de OMNIDESK.usuarios, e nao do token.\n     Causas, em ordem de frequencia: o usuario nao existe em OMNIDESK.usuarios;\n     existe mas sem perfil; ou o perfil nao tem a permissao do endpoint.\n\n  404 em GET /{id}\n     Pode ser id inexistente OU registro de outra empresa. A API nao distingue\n     de proposito. Nao trate como 'registro apagado'.\n\nPRE-REQUISITO DO USUARIO\n\n  O login precisa existir NOS DOIS LADOS, com o mesmo e-mail:\n    1. no realm `omnidesk` do Keycloak (credencial), e\n    2. em OMNIDESK.usuarios, ativo e com perfil (permissoes).\n\n  A correlacao e feita pela claim `email`, nao pelo username.\n  Usuario criado por POST /cadastro/usuarios nasce nos dois lados.\n  Criado direto no Keycloak recebe token valido e nenhuma permissao (403).\n",
+                "type": "text/plain"
+              },
+              "url": {
+                "path": [
+                  "oauth",
+                  "login"
+                ],
+                "host": [
+                  "{{baseUrl}}"
+                ],
+                "query": [],
+                "variable": "[redacted]"
+              },
+              "header": "[redacted]",
+              "method": "POST",
+              "body": "[redacted]",
+              "auth": "[redacted]"
+            },
+            "response": [],
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "id": "8a30703d-9ef6-4005-bd89-221af3e98b79",
+                  "type": "text/javascript",
+                  "exec": [
+                    "const loginHttpOk = pm.response && pm.response.code === 200;",
+                    "pm.test('Login responde HTTP 200', function () { pm.expect(pm.response.code).to.eql(200); });",
+                    "if (loginHttpOk) {",
+                    "  let loginBody = {}; try { loginBody = pm.response.json() || {}; } catch (e) {}",
+                    "  const loginToken = loginBody.token || loginBody;",
+                    "  const accessToken = loginToken && loginToken.access_token;",
+                    "  pm.test('Login retorna token de acesso', function () { pm.expect(accessToken).to.be.a('string').and.not.empty; });",
+                    "  if (typeof accessToken === 'string' && accessToken.length > 0) {",
+                    "    pm.collectionVariables.set('access_token', accessToken);",
+                    "    pm.environment.set('access_token', accessToken);",
+                    "    pm.collectionVariables.set('refresh_token', loginToken.refresh_token);",
+                    "    pm.environment.set('refresh_token', loginToken.refresh_token);",
+                    "  } else { postman.setNextRequest(null); }",
+                    "} else { postman.setNextRequest(null); }"
+                  ],
+                  "_lastExecutionId": "9744dfe3-aaea-420f-9211-905c959c5938"
+                }
+              }
+            ]
+          }
+        ],
+        "event": []
+      },
+      {
+        "id": "afed438c-e5e5-42de-8c6a-97f0e44add72",
+        "name": "Omnidesk - Configurações SMTP - Happy Path",
+        "item": [
+          {
+            "id": "78d0d3cc-4f82-413e-95ef-339150a122ef",
+            "name": "POST /omnidesk/configuracoes-smtp (cadastrar)",
+            "request": {
+              "description": {
+                "content": "Requer OMNIDESK.SMTP_CONFIGURACAO.CRIAR. idEmpresa precisa ser a empresa do usuario autenticado (400 se outra; administrador global informa qualquer uma). Uma configuracao ativa por empresa (409 na segunda). padrao=true exige administrador global. Preencha a variavel smtpSenha so localmente - nao salve a senha na collection.",
+                "type": "text/plain"
+              },
+              "url": {
+                "path": [
+                  "omnidesk",
+                  "configuracoes-smtp"
+                ],
+                "host": [
+                  "{{baseUrl}}"
+                ],
+                "query": [],
+                "variable": "[redacted]"
+              },
+              "header": "[redacted]",
+              "method": "POST",
+              "body": "[redacted]"
+            },
+            "response": [],
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "id": "dce55a1a-8210-4fea-bf73-215cec8c4158",
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test('POST cria configuração SMTP com HTTP 201', function () { pm.response.to.have.status(201); });",
+                    "if (pm.response.code !== 201) postman.setNextRequest(null);"
+                  ],
+                  "_lastExecutionId": "0dbdd32d-4795-4d7c-acd4-a9059731ee23"
+                }
+              }
+            ]
+          },
+          {
+            "id": "2f1409f0-f6b8-4a54-9f45-27533bcff684",
+            "name": "GET /omnidesk/configuracoes-smtp (lista paginada + RSQL)",
+            "request": {
+              "description": {
+                "content": "Requer OMNIDESK.SMTP_CONFIGURACAO.LISTAR. So configuracoes ativas; operador preso a empresa so ve a dele. Cada item traz padrao e razaoSocial.",
+                "type": "text/plain"
+              },
+              "url": {
+                "path": [
+                  "omnidesk",
+                  "configuracoes-smtp"
+                ],
+                "host": [
+                  "{{baseUrl}}"
+                ],
+                "query": [
+                  {
+                    "key": "page",
+                    "value": "0"
+                  },
+                  {
+                    "key": "size",
+                    "value": "20"
+                  },
+                  {
+                    "key": "sort",
+                    "value": "id,desc"
+                  },
+                  {
+                    "description": {
+                      "content": "Filtro RSQL (ex.: idEmpresa==1); status e senhaCriptografada sao ignorados",
+                      "type": "text/plain"
+                    },
+                    "key": "search",
+                    "value": ""
+                  }
+                ],
+                "variable": "[redacted]"
+              },
+              "method": "GET"
+            },
+            "response": [],
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "id": "a50dbce7-bf90-4fba-b71e-dae0765e7089",
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test('GET lista SMTP responde HTTP 200', function () { pm.response.to.have.status(200); });",
+                    "if (pm.response.code !== 200) postman.setNextRequest(null); else {",
+                    "  let body = {}; try { body = pm.response.json(); } catch (e) {}",
+                    "  function findCreated(value) { if (Array.isArray(value)) { for (const x of value) { const found = findCreated(x); if (found) return found; } } else if (value && typeof value === \"object\") { if (value.nomeRemetente === pm.environment.get(\"smtpTestRunId\") || value.nomeRemetente === \"[TESTE] SMTP Happy Path \" + pm.environment.get(\"smtpTestRunId\")) return value; for (const v of Object.values(value)) { const found = findCreated(v); if (found) return found; } } return null; }",
+                    "  const created = findCreated(body);",
+                    "  if (created) { const id = created.id || created.idConfiguracaoSmtp || created.idSmtpConfiguracao; if (id) { pm.environment.set('smtpCreatedId', String(id)); pm.collectionVariables.set('smtpCreatedId', String(id)); } }",
+                    "  const found = !!created;",
+                    "  pm.test('GET lista contém somente o registro criado por este run', function () { pm.expect(found).to.eql(true); });",
+                    "  if (!found) postman.setNextRequest(null);",
+                    "}"
+                  ],
+                  "_lastExecutionId": "2b05da87-d771-4f08-a730-4415aa642cc2"
+                }
+              }
+            ]
+          },
+          {
+            "id": "a4d4b958-8062-428c-883f-211c1d3f18e7",
+            "name": "GET /omnidesk/configuracoes-smtp/{id}",
+            "request": {
+              "description": {
+                "content": "Requer OMNIDESK.SMTP_CONFIGURACAO.CONSULTAR. Sem senha; senhaCadastrada informa se existe uma.",
+                "type": "text/plain"
+              },
+              "url": {
+                "path": [
+                  "omnidesk",
+                  "configuracoes-smtp",
+                  "{{smtpCreatedId}}"
+                ],
+                "host": [
+                  "{{baseUrl}}"
+                ],
+                "query": [],
+                "variable": "[redacted]"
+              },
+              "method": "GET"
+            },
+            "response": [],
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "id": "3c65918b-1c4d-4b5b-a5d3-6f2f6ca26b0d",
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test('GET por ID responde HTTP 200', function () { pm.response.to.have.status(200); });",
+                    "if (pm.response.code !== 200) postman.setNextRequest(\"DELETE /omnidesk/configuracoes-smtp/{id} (excluir)\"); else {",
+                    "  let body = {}; try { body = pm.response.json(); } catch (e) {}",
+                    "  function hasSecret(value) { if (Array.isArray(value)) return value.some(hasSecret); if (value && typeof value === \"object\") return Object.entries(value).some(([k, v]) => /^(senha|senhaCriptografada|password)$/i.test(k) || hasSecret(v)); return false; }",
+                    "  pm.test('Consulta não devolve a senha', function () { pm.expect(hasSecret(body)).to.eql(false); });",
+                    "  pm.test('Consulta informa senha cadastrada', function () { pm.expect(body.senhaCadastrada).to.eql(true); });",
+                    "}"
+                  ],
+                  "_lastExecutionId": "0e8ad020-4065-4eb9-a1bb-b17478307995"
+                }
+              }
+            ]
+          },
+          {
+            "id": "5ca3724b-4a45-41fd-8467-46292438b953",
+            "name": "PUT /omnidesk/configuracoes-smtp/{id}",
+            "request": {
+              "description": {
+                "content": "Requer OMNIDESK.SMTP_CONFIGURACAO.ATUALIZAR. senha nula/em branco mantem a atual. padrao=true troca a conta padrao (administrador global); padrao=false na padrao responde 409.",
+                "type": "text/plain"
+              },
+              "url": {
+                "path": [
+                  "omnidesk",
+                  "configuracoes-smtp",
+                  "{{smtpCreatedId}}"
+                ],
+                "host": [
+                  "{{baseUrl}}"
+                ],
+                "query": [],
+                "variable": "[redacted]"
+              },
+              "header": "[redacted]",
+              "method": "PUT",
+              "body": "[redacted]"
+            },
+            "response": [],
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "id": "a97b657b-7453-4aa7-a9eb-642ad9ff2f6e",
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test('PUT edita configuração SMTP com HTTP 200', function () { pm.response.to.have.status(200); });",
+                    "if (pm.response.code !== 200) postman.setNextRequest(\"DELETE /omnidesk/configuracoes-smtp/{id} (excluir)\"); else {",
+                    "  let body = {}; try { body = pm.response.json(); } catch (e) {}",
+                    "  pm.test('PUT aplica porta e segurança', function () { pm.expect(body.porta).to.eql(465); pm.expect(body.seguranca).to.eql('SSL_TLS'); });",
+                    "  pm.test('PUT sem senha mantém senha cadastrada', function () { pm.expect(body.senhaCadastrada).to.eql(true); });",
+                    "}"
+                  ],
+                  "_lastExecutionId": "7ace96c2-bad8-405e-b635-9076173d0916"
+                }
+              }
+            ]
+          },
+          {
+            "id": "d21c0158-7e53-4c62-87f6-441d0d43e81d",
+            "name": "DELETE /omnidesk/configuracoes-smtp/{id} (excluir)",
+            "request": {
+              "description": {
+                "content": "Requer OMNIDESK.SMTP_CONFIGURACAO.EXCLUIR. Exclusao logica que apaga a senha (idempotente); a conta padrao nao pode ser excluida (409).",
+                "type": "text/plain"
+              },
+              "url": {
+                "path": [
+                  "omnidesk",
+                  "configuracoes-smtp",
+                  "{{smtpCreatedId}}"
+                ],
+                "host": [
+                  "{{baseUrl}}"
+                ],
+                "query": [],
+                "variable": "[redacted]"
+              },
+              "method": "DELETE"
+            },
+            "response": [],
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "id": "1e12d243-403e-4584-94df-1a2f98889e6d",
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test('DELETE exclui a configuração criada neste run com HTTP 204', function () { pm.response.to.have.status(204); });"
+                  ],
+                  "_lastExecutionId": "881548a5-27d8-4353-a316-3928d34eb737"
+                }
+              }
+            ]
+          }
+        ],
+        "event": []
+      }
+    ],
+    "auth": "[redacted]",
+    "event": [],
+    "variable": "[redacted]",
+    "info": {
+      "_postman_id": "ce8cccc9-a170-464c-a7d5-bb3091e76f79",
+      "name": "Omnidelicias API - SMTP Happy Path",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+      "description": {
+        "content": "Fluxo SMTP isolado: login, POST, GET lista, GET por ID, PUT sem senha e DELETE. O ID é capturado do POST e a limpeza só aponta para o registro criado pelo cenário.",
+        "type": "text/plain"
+      }
+    }
+  },
+  "environment": "[redacted]",
+  "globals": "[redacted]",
+  "run": {
+    "stats": {
+      "iterations": {
+        "total": 1,
+        "pending": 0,
+        "failed": 0
+      },
+      "items": {
+        "total": 6,
+        "pending": 0,
+        "failed": 0
+      },
+      "scripts": {
+        "total": 6,
+        "pending": 0,
+        "failed": 0
+      },
+      "prerequests": {
+        "total": 6,
+        "pending": 0,
+        "failed": 0
+      },
+      "requests": {
+        "total": 6,
+        "pending": 0,
+        "failed": 0
+      },
+      "tests": {
+        "total": 6,
+        "pending": 0,
+        "failed": 0
+      },
+      "assertions": {
+        "total": 12,
+        "pending": 0,
+        "failed": 0
+      },
+      "testScripts": {
+        "total": 6,
+        "pending": 0,
+        "failed": 0
+      },
+      "prerequestScripts": {
+        "total": 0,
+        "pending": 0,
+        "failed": 0
+      }
+    },
+    "timings": {
+      "responseAverage": 3655,
+      "responseMin": 2956,
+      "responseMax": 4028,
+      "responseSd": 371.42069588720193,
+      "dnsAverage": 0,
+      "dnsMin": 0,
+      "dnsMax": 0,
+      "dnsSd": 0,
+      "firstByteAverage": 0,
+      "firstByteMin": 0,
+      "firstByteMax": 0,
+      "firstByteSd": 0,
+      "started": 1792094290591,
+      "completed": 1792094313203
+    },
+    "executions": [
+      {
+        "cursor": {
+          "position": 0,
+          "iteration": 0,
+          "length": 6,
+          "cycles": 1,
+          "empty": false,
+          "eof": false,
+          "bof": true,
+          "cr": false,
+          "ref": "b5022158-b088-4337-8031-10b6d231a973",
+          "httpRequestId": "6dc83979-50fc-46e0-8d9b-5fa4abfebc05"
+        },
+        "item": {
+          "id": "0db94435-99fc-4083-a6af-ae045c7279dd",
+          "name": "POST /oauth/login  <-- comece por aqui",
+          "request": {
+            "description": {
+              "content": "Troca usuario e senha por token. O script de teste guarda access_token e refresh_token nas variaveis da collection, e os demais requests herdam o bearer.\n\nPreencha `username` e `password` no environment. Nenhum client_secret e necessario: ele fica no servidor da API.\n\nNAO use token obtido direto no Keycloak, nem token do ShowNet: a API so aceita o realm `omnidesk`.\n\nCOMO LER A RESPOSTA\n\n  Connection refused / socket hang up\n     A API nao esta rodando. Nao e erro de token.\n\n  401 em endpoint de negocio\n     O token nao foi aceito. Quase sempre e token do realm errado:\n     a API so aceita o realm `omnidesk`. Token do ShowNet / `Omnilink PRD`\n     (client `omnilink-php`) e recusado no issuer, por mais valido que seja.\n     Confira a claim `iss` do seu token em jwt.io.\n\n  403 em endpoint de negocio\n     O token foi ACEITO. Falta permissao. Renovar ou logar de novo nao resolve:\n     as permissoes vem de OMNIDESK.usuarios, e nao do token.\n     Causas, em ordem de frequencia: o usuario nao existe em OMNIDESK.usuarios;\n     existe mas sem perfil; ou o perfil nao tem a permissao do endpoint.\n\n  404 em GET /{id}\n     Pode ser id inexistente OU registro de outra empresa. A API nao distingue\n     de proposito. Nao trate como 'registro apagado'.\n\nPRE-REQUISITO DO USUARIO\n\n  O login precisa existir NOS DOIS LADOS, com o mesmo e-mail:\n    1. no realm `omnidesk` do Keycloak (credencial), e\n    2. em OMNIDESK.usuarios, ativo e com perfil (permissoes).\n\n  A correlacao e feita pela claim `email`, nao pelo username.\n  Usuario criado por POST /cadastro/usuarios nasce nos dois lados.\n  Criado direto no Keycloak recebe token valido e nenhuma permissao (403).\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "oauth",
+                "login"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": "[redacted]"
+            },
+            "header": "[redacted]",
+            "method": "POST",
+            "body": "[redacted]",
+            "auth": "[redacted]"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "8a30703d-9ef6-4005-bd89-221af3e98b79",
+                "type": "text/javascript",
+                "exec": [
+                  "const loginHttpOk = pm.response && pm.response.code === 200;",
+                  "pm.test('Login responde HTTP 200', function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "if (loginHttpOk) {",
+                  "  let loginBody = {}; try { loginBody = pm.response.json() || {}; } catch (e) {}",
+                  "  const loginToken = loginBody.token || loginBody;",
+                  "  const accessToken = loginToken && loginToken.access_token;",
+                  "  pm.test('Login retorna token de acesso', function () { pm.expect(accessToken).to.be.a('string').and.not.empty; });",
+                  "  if (typeof accessToken === 'string' && accessToken.length > 0) {",
+                  "    pm.collectionVariables.set('access_token', accessToken);",
+                  "    pm.environment.set('access_token', accessToken);",
+                  "    pm.collectionVariables.set('refresh_token', loginToken.refresh_token);",
+                  "    pm.environment.set('refresh_token', loginToken.refresh_token);",
+                  "  } else { postman.setNextRequest(null); }",
+                  "} else { postman.setNextRequest(null); }"
+                ],
+                "_lastExecutionId": "9744dfe3-aaea-420f-9211-905c959c5938"
+              }
+            }
+          ]
+        },
+        "request": {
+          "description": {
+            "content": "Troca usuario e senha por token. O script de teste guarda access_token e refresh_token nas variaveis da collection, e os demais requests herdam o bearer.\n\nPreencha `username` e `password` no environment. Nenhum client_secret e necessario: ele fica no servidor da API.\n\nNAO use token obtido direto no Keycloak, nem token do ShowNet: a API so aceita o realm `omnidesk`.\n\nCOMO LER A RESPOSTA\n\n  Connection refused / socket hang up\n     A API nao esta rodando. Nao e erro de token.\n\n  401 em endpoint de negocio\n     O token nao foi aceito. Quase sempre e token do realm errado:\n     a API so aceita o realm `omnidesk`. Token do ShowNet / `Omnilink PRD`\n     (client `omnilink-php`) e recusado no issuer, por mais valido que seja.\n     Confira a claim `iss` do seu token em jwt.io.\n\n  403 em endpoint de negocio\n     O token foi ACEITO. Falta permissao. Renovar ou logar de novo nao resolve:\n     as permissoes vem de OMNIDESK.usuarios, e nao do token.\n     Causas, em ordem de frequencia: o usuario nao existe em OMNIDESK.usuarios;\n     existe mas sem perfil; ou o perfil nao tem a permissao do endpoint.\n\n  404 em GET /{id}\n     Pode ser id inexistente OU registro de outra empresa. A API nao distingue\n     de proposito. Nao trate como 'registro apagado'.\n\nPRE-REQUISITO DO USUARIO\n\n  O login precisa existir NOS DOIS LADOS, com o mesmo e-mail:\n    1. no realm `omnidesk` do Keycloak (credencial), e\n    2. em OMNIDESK.usuarios, ativo e com perfil (permissoes).\n\n  A correlacao e feita pela claim `email`, nao pelo username.\n  Usuario criado por POST /cadastro/usuarios nasce nos dois lados.\n  Criado direto no Keycloak recebe token valido e nenhuma permissao (403).\n",
+            "type": "text/plain"
+          },
+          "url": {
+            "protocol": "http",
+            "port": "8080",
+            "path": [
+              "oauth",
+              "login"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": "[redacted]"
+          },
+          "header": "[redacted]",
+          "method": "POST",
+          "body": "[redacted]",
+          "auth": "[redacted]"
+        },
+        "response": {
+          "id": "98d8230a-e132-462a-92d8-3c7d6f6166f6",
+          "status": "OK",
+          "code": 200,
+          "header": "[redacted]",
+          "stream": "[redacted]",
+          "cookie": "[redacted]",
+          "responseTime": 2956,
+          "responseSize": 15286
+        },
+        "id": "0db94435-99fc-4083-a6af-ae045c7279dd",
+        "assertions": [
+          {
+            "assertion": "Login responde HTTP 200",
+            "skipped": false
+          },
+          {
+            "assertion": "Login retorna token de acesso",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "f117505e-ba5c-4e53-aff8-ea26869aa597",
+          "length": 6,
+          "cycles": 1,
+          "position": 1,
+          "iteration": 0,
+          "httpRequestId": "ff52ae1f-40eb-43a2-bc00-599626aaad94"
+        },
+        "item": {
+          "id": "78d0d3cc-4f82-413e-95ef-339150a122ef",
+          "name": "POST /omnidesk/configuracoes-smtp (cadastrar)",
+          "request": {
+            "description": {
+              "content": "Requer OMNIDESK.SMTP_CONFIGURACAO.CRIAR. idEmpresa precisa ser a empresa do usuario autenticado (400 se outra; administrador global informa qualquer uma). Uma configuracao ativa por empresa (409 na segunda). padrao=true exige administrador global. Preencha a variavel smtpSenha so localmente - nao salve a senha na collection.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "omnidesk",
+                "configuracoes-smtp"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": "[redacted]"
+            },
+            "header": "[redacted]",
+            "method": "POST",
+            "body": "[redacted]"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "dce55a1a-8210-4fea-bf73-215cec8c4158",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('POST cria configuração SMTP com HTTP 201', function () { pm.response.to.have.status(201); });",
+                  "if (pm.response.code !== 201) postman.setNextRequest(null);"
+                ],
+                "_lastExecutionId": "0dbdd32d-4795-4d7c-acd4-a9059731ee23"
+              }
+            }
+          ]
+        },
+        "request": {
+          "description": {
+            "content": "Requer OMNIDESK.SMTP_CONFIGURACAO.CRIAR. idEmpresa precisa ser a empresa do usuario autenticado (400 se outra; administrador global informa qualquer uma). Uma configuracao ativa por empresa (409 na segunda). padrao=true exige administrador global. Preencha a variavel smtpSenha so localmente - nao salve a senha na collection.",
+            "type": "text/plain"
+          },
+          "url": {
+            "protocol": "http",
+            "port": "8080",
+            "path": [
+              "omnidesk",
+              "configuracoes-smtp"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": "[redacted]"
+          },
+          "header": "[redacted]",
+          "method": "POST",
+          "body": "[redacted]",
+          "auth": "[redacted]"
+        },
+        "response": {
+          "id": "98a0850e-9f23-4227-9950-b7ae1accab95",
+          "status": "Created",
+          "code": 201,
+          "header": "[redacted]",
+          "stream": "[redacted]",
+          "cookie": "[redacted]",
+          "responseTime": 4028,
+          "responseSize": 522
+        },
+        "id": "78d0d3cc-4f82-413e-95ef-339150a122ef",
+        "assertions": [
+          {
+            "assertion": "POST cria configuração SMTP com HTTP 201",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "200b9ed4-7aa2-44cf-a114-5562716ef825",
+          "length": 6,
+          "cycles": 1,
+          "position": 2,
+          "iteration": 0,
+          "httpRequestId": "9f6f43f0-f90c-4876-8d76-15cb06654037"
+        },
+        "item": {
+          "id": "2f1409f0-f6b8-4a54-9f45-27533bcff684",
+          "name": "GET /omnidesk/configuracoes-smtp (lista paginada + RSQL)",
+          "request": {
+            "description": {
+              "content": "Requer OMNIDESK.SMTP_CONFIGURACAO.LISTAR. So configuracoes ativas; operador preso a empresa so ve a dele. Cada item traz padrao e razaoSocial.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "omnidesk",
+                "configuracoes-smtp"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                },
+                {
+                  "key": "sort",
+                  "value": "id,desc"
+                },
+                {
+                  "description": {
+                    "content": "Filtro RSQL (ex.: idEmpresa==1); status e senhaCriptografada sao ignorados",
+                    "type": "text/plain"
+                  },
+                  "key": "search",
+                  "value": ""
+                }
+              ],
+              "variable": "[redacted]"
+            },
+            "method": "GET"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "a50dbce7-bf90-4fba-b71e-dae0765e7089",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('GET lista SMTP responde HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "if (pm.response.code !== 200) postman.setNextRequest(null); else {",
+                  "  let body = {}; try { body = pm.response.json(); } catch (e) {}",
+                  "  function findCreated(value) { if (Array.isArray(value)) { for (const x of value) { const found = findCreated(x); if (found) return found; } } else if (value && typeof value === \"object\") { if (value.nomeRemetente === pm.environment.get(\"smtpTestRunId\") || value.nomeRemetente === \"[TESTE] SMTP Happy Path \" + pm.environment.get(\"smtpTestRunId\")) return value; for (const v of Object.values(value)) { const found = findCreated(v); if (found) return found; } } return null; }",
+                  "  const created = findCreated(body);",
+                  "  if (created) { const id = created.id || created.idConfiguracaoSmtp || created.idSmtpConfiguracao; if (id) { pm.environment.set('smtpCreatedId', String(id)); pm.collectionVariables.set('smtpCreatedId', String(id)); } }",
+                  "  const found = !!created;",
+                  "  pm.test('GET lista contém somente o registro criado por este run', function () { pm.expect(found).to.eql(true); });",
+                  "  if (!found) postman.setNextRequest(null);",
+                  "}"
+                ],
+                "_lastExecutionId": "2b05da87-d771-4f08-a730-4415aa642cc2"
+              }
+            }
+          ]
+        },
+        "request": {
+          "description": {
+            "content": "Requer OMNIDESK.SMTP_CONFIGURACAO.LISTAR. So configuracoes ativas; operador preso a empresa so ve a dele. Cada item traz padrao e razaoSocial.",
+            "type": "text/plain"
+          },
+          "url": {
+            "protocol": "http",
+            "port": "8080",
+            "path": [
+              "omnidesk",
+              "configuracoes-smtp"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [
+              {
+                "key": "page",
+                "value": "0"
+              },
+              {
+                "key": "size",
+                "value": "20"
+              },
+              {
+                "key": "sort",
+                "value": "id,desc"
+              },
+              {
+                "key": "search",
+                "value": ""
+              }
+            ],
+            "variable": "[redacted]"
+          },
+          "header": "[redacted]",
+          "method": "GET",
+          "auth": "[redacted]"
+        },
+        "response": {
+          "id": "cf615911-0893-4b5d-a5f0-596c56a76bc3",
+          "status": "OK",
+          "code": 200,
+          "header": "[redacted]",
+          "stream": "[redacted]",
+          "cookie": "[redacted]",
+          "responseTime": 3858,
+          "responseSize": 717
+        },
+        "id": "2f1409f0-f6b8-4a54-9f45-27533bcff684",
+        "assertions": [
+          {
+            "assertion": "GET lista SMTP responde HTTP 200",
+            "skipped": false
+          },
+          {
+            "assertion": "GET lista contém somente o registro criado por este run",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "f3e907c0-7f02-48ef-91d9-c9cccdf8a201",
+          "length": 6,
+          "cycles": 1,
+          "position": 3,
+          "iteration": 0,
+          "httpRequestId": "242c6051-8e0f-4eb0-8192-51b09c625846"
+        },
+        "item": {
+          "id": "a4d4b958-8062-428c-883f-211c1d3f18e7",
+          "name": "GET /omnidesk/configuracoes-smtp/{id}",
+          "request": {
+            "description": {
+              "content": "Requer OMNIDESK.SMTP_CONFIGURACAO.CONSULTAR. Sem senha; senhaCadastrada informa se existe uma.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "omnidesk",
+                "configuracoes-smtp",
+                "{{smtpCreatedId}}"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": "[redacted]"
+            },
+            "method": "GET"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "3c65918b-1c4d-4b5b-a5d3-6f2f6ca26b0d",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('GET por ID responde HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "if (pm.response.code !== 200) postman.setNextRequest(\"DELETE /omnidesk/configuracoes-smtp/{id} (excluir)\"); else {",
+                  "  let body = {}; try { body = pm.response.json(); } catch (e) {}",
+                  "  function hasSecret(value) { if (Array.isArray(value)) return value.some(hasSecret); if (value && typeof value === \"object\") return Object.entries(value).some(([k, v]) => /^(senha|senhaCriptografada|password)$/i.test(k) || hasSecret(v)); return false; }",
+                  "  pm.test('Consulta não devolve a senha', function () { pm.expect(hasSecret(body)).to.eql(false); });",
+                  "  pm.test('Consulta informa senha cadastrada', function () { pm.expect(body.senhaCadastrada).to.eql(true); });",
+                  "}"
+                ],
+                "_lastExecutionId": "0e8ad020-4065-4eb9-a1bb-b17478307995"
+              }
+            }
+          ]
+        },
+        "request": {
+          "description": {
+            "content": "Requer OMNIDESK.SMTP_CONFIGURACAO.CONSULTAR. Sem senha; senhaCadastrada informa se existe uma.",
+            "type": "text/plain"
+          },
+          "url": {
+            "protocol": "http",
+            "port": "8080",
+            "path": [
+              "omnidesk",
+              "configuracoes-smtp",
+              "17"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": "[redacted]"
+          },
+          "header": "[redacted]",
+          "method": "GET",
+          "auth": "[redacted]"
+        },
+        "response": {
+          "id": "470d0c74-cfe4-442c-8ec1-f64a5873c222",
+          "status": "OK",
+          "code": 200,
+          "header": "[redacted]",
+          "stream": "[redacted]",
+          "cookie": "[redacted]",
+          "responseTime": 3804,
+          "responseSize": 522
+        },
+        "id": "a4d4b958-8062-428c-883f-211c1d3f18e7",
+        "assertions": [
+          {
+            "assertion": "GET por ID responde HTTP 200",
+            "skipped": false
+          },
+          {
+            "assertion": "Consulta não devolve a senha",
+            "skipped": false
+          },
+          {
+            "assertion": "Consulta informa senha cadastrada",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "968a5016-1482-449b-ad51-a17d180a3a9e",
+          "length": 6,
+          "cycles": 1,
+          "position": 4,
+          "iteration": 0,
+          "httpRequestId": "0c10a62a-9c56-440e-b3df-4a4ad8711b77"
+        },
+        "item": {
+          "id": "5ca3724b-4a45-41fd-8467-46292438b953",
+          "name": "PUT /omnidesk/configuracoes-smtp/{id}",
+          "request": {
+            "description": {
+              "content": "Requer OMNIDESK.SMTP_CONFIGURACAO.ATUALIZAR. senha nula/em branco mantem a atual. padrao=true troca a conta padrao (administrador global); padrao=false na padrao responde 409.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "omnidesk",
+                "configuracoes-smtp",
+                "{{smtpCreatedId}}"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": "[redacted]"
+            },
+            "header": "[redacted]",
+            "method": "PUT",
+            "body": "[redacted]"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "a97b657b-7453-4aa7-a9eb-642ad9ff2f6e",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('PUT edita configuração SMTP com HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "if (pm.response.code !== 200) postman.setNextRequest(\"DELETE /omnidesk/configuracoes-smtp/{id} (excluir)\"); else {",
+                  "  let body = {}; try { body = pm.response.json(); } catch (e) {}",
+                  "  pm.test('PUT aplica porta e segurança', function () { pm.expect(body.porta).to.eql(465); pm.expect(body.seguranca).to.eql('SSL_TLS'); });",
+                  "  pm.test('PUT sem senha mantém senha cadastrada', function () { pm.expect(body.senhaCadastrada).to.eql(true); });",
+                  "}"
+                ],
+                "_lastExecutionId": "7ace96c2-bad8-405e-b635-9076173d0916"
+              }
+            }
+          ]
+        },
+        "request": {
+          "description": {
+            "content": "Requer OMNIDESK.SMTP_CONFIGURACAO.ATUALIZAR. senha nula/em branco mantem a atual. padrao=true troca a conta padrao (administrador global); padrao=false na padrao responde 409.",
+            "type": "text/plain"
+          },
+          "url": {
+            "protocol": "http",
+            "port": "8080",
+            "path": [
+              "omnidesk",
+              "configuracoes-smtp",
+              "17"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": "[redacted]"
+          },
+          "header": "[redacted]",
+          "method": "PUT",
+          "body": "[redacted]",
+          "auth": "[redacted]"
+        },
+        "response": {
+          "id": "bedd3312-2b78-4a88-87b6-c4d4f248ed55",
+          "status": "OK",
+          "code": 200,
+          "header": "[redacted]",
+          "stream": "[redacted]",
+          "cookie": "[redacted]",
+          "responseTime": 3903,
+          "responseSize": 535
+        },
+        "id": "5ca3724b-4a45-41fd-8467-46292438b953",
+        "assertions": [
+          {
+            "assertion": "PUT edita configuração SMTP com HTTP 200",
+            "skipped": false
+          },
+          {
+            "assertion": "PUT aplica porta e segurança",
+            "skipped": false
+          },
+          {
+            "assertion": "PUT sem senha mantém senha cadastrada",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "78f807ab-71c1-4945-a05f-2c82470abc8e",
+          "length": 6,
+          "cycles": 1,
+          "position": 5,
+          "iteration": 0,
+          "httpRequestId": "6a2ee8bb-08c5-479e-b0f5-ee99f04f3078"
+        },
+        "item": {
+          "id": "d21c0158-7e53-4c62-87f6-441d0d43e81d",
+          "name": "DELETE /omnidesk/configuracoes-smtp/{id} (excluir)",
+          "request": {
+            "description": {
+              "content": "Requer OMNIDESK.SMTP_CONFIGURACAO.EXCLUIR. Exclusao logica que apaga a senha (idempotente); a conta padrao nao pode ser excluida (409).",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "omnidesk",
+                "configuracoes-smtp",
+                "{{smtpCreatedId}}"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": "[redacted]"
+            },
+            "method": "DELETE"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "1e12d243-403e-4584-94df-1a2f98889e6d",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('DELETE exclui a configuração criada neste run com HTTP 204', function () { pm.response.to.have.status(204); });"
+                ],
+                "_lastExecutionId": "881548a5-27d8-4353-a316-3928d34eb737"
+              }
+            }
+          ]
+        },
+        "request": {
+          "description": {
+            "content": "Requer OMNIDESK.SMTP_CONFIGURACAO.EXCLUIR. Exclusao logica que apaga a senha (idempotente); a conta padrao nao pode ser excluida (409).",
+            "type": "text/plain"
+          },
+          "url": {
+            "protocol": "http",
+            "port": "8080",
+            "path": [
+              "omnidesk",
+              "configuracoes-smtp",
+              "17"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": "[redacted]"
+          },
+          "header": "[redacted]",
+          "method": "DELETE",
+          "auth": "[redacted]"
+        },
+        "response": {
+          "id": "1d04a8f5-275c-44bf-ab88-e28386338217",
+          "status": "No Content",
+          "code": 204,
+          "header": "[redacted]",
+          "stream": "[redacted]",
+          "cookie": "[redacted]",
+          "responseTime": 3381,
+          "responseSize": 0
+        },
+        "id": "d21c0158-7e53-4c62-87f6-441d0d43e81d",
+        "assertions": [
+          {
+            "assertion": "DELETE exclui a configuração criada neste run com HTTP 204",
+            "skipped": false
+          }
+        ]
+      }
+    ],
+    "transfers": {
+      "responseTotal": 17582
+    },
+    "failures": [],
+    "error": null
+  }
+}

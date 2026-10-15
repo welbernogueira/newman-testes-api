@@ -1,0 +1,22 @@
+{
+  "scenarioId": "CEN-05",
+  "workbookRow": 6,
+  "title": "Remover asteriscos na edição",
+  "status": "BLOQUEADO",
+  "excelVerdict": "⚠️ IMPEDIDO",
+  "expected": "Os campos que já iniciam com um item selecionado não devem exibir asterisco de obrigatoriedade na edição.",
+  "observed": "BLOQUEADO. A API listou 10 status existentes, mas não foi possível abrir a interface ou o formulário de edição. Os campos pré-selecionados e os asteriscos não foram observados. Nenhum PUT foi enviado.",
+  "prerequisite": "Há 10 status existentes via API (HTTP 200), atendendo somente à existência de registro. A interface necessária para editar está indisponível.",
+  "scenarioStepsExecuted": 0,
+  "scenarioSteps": [
+    "Abrir um status existente para edição: NÃO EXECUTADO; a tela não carregou.",
+    "Conferir os campos com item pré-selecionado: NÃO EXECUTADO.",
+    "Verificar os asteriscos de obrigatoriedade: NÃO EXECUTADO."
+  ],
+  "writeRequestsSent": 0,
+  "evidence": [
+    "prints/resultado/01-interface-indisponivel.png",
+    "complementares/api-prechecks.json"
+  ],
+  "missingDependency": "Front-end de Status de Ticket acessível nesta API, com permissão de visualização/cadastro/edição."
+}

@@ -1,0 +1,22 @@
+{
+  "scenarioId": "CEN-01",
+  "workbookRow": 2,
+  "title": "Exibir tag colorida na coluna Justificativa",
+  "status": "BLOQUEADO",
+  "excelVerdict": "⚠️ IMPEDIDO",
+  "expected": "A coluna deve exibir tags coloridas identificando corretamente Obrigatória e Opcional.",
+  "observed": "BLOQUEADO. O pré-check retornou 11 justificativas e 10 status-ticket, ambos HTTP 200. Porém, justificativa nos 10 status é numérica; a API não comprova quais registros representam Obrigatória e Opcional. A interface não carregou, então nenhuma tag ou cor foi observada.",
+  "prerequisite": "A API encontrou 11 justificativas e 10 status. A condição específica Obrigatória/Opcional não foi comprovada: justificativa veio como número. O front-end também está indisponível.",
+  "scenarioStepsExecuted": 0,
+  "scenarioSteps": [
+    "Acessar a tela Status de Ticket: BLOQUEADO; localhost:4200 não abriu.",
+    "Localizar a coluna Justificativa: NÃO EXECUTADO.",
+    "Conferir registros Obrigatória e Opcional: NÃO EXECUTADO; a classificação visual não foi observada."
+  ],
+  "writeRequestsSent": 0,
+  "evidence": [
+    "prints/resultado/01-interface-indisponivel.png",
+    "complementares/api-prechecks.json"
+  ],
+  "missingDependency": "Front-end de Status de Ticket acessível nesta API, com permissão de visualização/cadastro/edição."
+}

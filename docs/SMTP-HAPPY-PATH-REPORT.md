@@ -17,7 +17,7 @@ O ID usado nas operações por ID vem do item encontrado na listagem. Se a lista
 
 Data: 2026-10-15
 
-Resultado: 6 requests (login + 5 SMTP), 11 assertions aprovadas, 0 falhas.
+Resultado: 6 requests (login + 5 SMTP), 12 assertions aprovadas, 0 falhas. Todos os seis cenários ficaram APROVADOS; o DELETE final confirmou a limpeza do registro criado.
 
 | Etapa | Resultado |
 | --- | ---: |
@@ -28,10 +28,13 @@ Resultado: 6 requests (login + 5 SMTP), 11 assertions aprovadas, 0 falhas.
 | PUT atualizar | 200 |
 | DELETE limpar registro do run | 204 |
 
-Relatórios sanitizados:
+Relatórios sanitizados da execução mais recente (2026-10-15T19-58-09-162Z):
 
-- `reports/smtp-happy-2026-10-15T19-02-55-664Z.html`
-- `reports/smtp-happy-2026-10-15T19-02-55-664Z.json`
+- `reports/smtp-happy-2026-10-15T19-58-09-162Z.html`
+- `reports/smtp-happy-2026-10-15T19-58-09-162Z.json`
+- Evidências: `evidence/smtp-happy-2026-10-15T19-58-09-162Z/RESUMO.md`
+
+O login agora interrompe o fluxo quando não retorna HTTP 200 e um token de acesso válido. Isso evita enviar operações SMTP sem autenticação; os passos dependentes são registrados como bloqueados no dossiê.
 
 ## Comando
 

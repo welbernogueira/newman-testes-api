@@ -1,0 +1,13 @@
+{
+  "scenarioId": "CEN-04",
+  "workbookRow": 5,
+  "requests": [],
+  "frontend": {
+    "attemptedUrl": "http://localhost:4200/",
+    "tcpListener4200": false,
+    "tcpListener5173": false,
+    "browserMessage": "A navegação para a página da Web foi cancelada",
+    "screenshot": "frontend-localhost-4200-indisponivel.png"
+  },
+  "interpretation": "O fluxo depende do front-end de Status de Ticket e dos controles do formulário; ambos não puderam ser acessados. Nenhum dado de teste foi criado."
+}

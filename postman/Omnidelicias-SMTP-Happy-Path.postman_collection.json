@@ -27,18 +27,20 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "const body = pm.response.json();",
-                  "const token = body.token || body;",
-                  "",
-                  "pm.collectionVariables.set('access_token', token.access_token);",
-                  "pm.environment.set('access_token', token.access_token);",
-                  "pm.collectionVariables.set('refresh_token', token.refresh_token);",
-                  "pm.environment.set('refresh_token', token.refresh_token);",
-                  "",
-                  "pm.test('Token obtido', function () {",
-                  "    pm.response.to.have.status(200);",
-                  "    pm.expect(token.access_token).to.be.a('string').and.not.empty;",
-                  "});"
+                  "const loginHttpOk = pm.response && pm.response.code === 200;",
+                  "pm.test('Login responde HTTP 200', function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "if (loginHttpOk) {",
+                  "  let loginBody = {}; try { loginBody = pm.response.json() || {}; } catch (e) {}",
+                  "  const loginToken = loginBody.token || loginBody;",
+                  "  const accessToken = loginToken && loginToken.access_token;",
+                  "  pm.test('Login retorna token de acesso', function () { pm.expect(accessToken).to.be.a('string').and.not.empty; });",
+                  "  if (typeof accessToken === 'string' && accessToken.length > 0) {",
+                  "    pm.collectionVariables.set('access_token', accessToken);",
+                  "    pm.environment.set('access_token', accessToken);",
+                  "    pm.collectionVariables.set('refresh_token', loginToken.refresh_token);",
+                  "    pm.environment.set('refresh_token', loginToken.refresh_token);",
+                  "  } else { postman.setNextRequest(null); }",
+                  "} else { postman.setNextRequest(null); }"
                 ]
               }
             }

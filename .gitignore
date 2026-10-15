@@ -4,5 +4,19 @@ node_modules/
 !.env.example
 reports/*
 !reports/.gitkeep
+evidence/*
+!evidence/.gitkeep
 postman/environments/*.json
 !postman/environments/*.example.postman_environment.json
+# Resultado QA final de 2026-10-15
+!evidence/qa-execution-2026-10-15-status-ticket-final/
+!evidence/qa-execution-2026-10-15-status-ticket-final/**
+# Artefatos intermedi?rios criados ao preservar o workbook original
+docs/Matriz_QA_Omnidesk_StatusTicket_Tags_Datas_Asteriscos_Preenchida.xlsx
+docs/Matriz_QA_Omnidesk_StatusTicket_Tags_Datas_Asteriscos_Preenchida.tmp.xlsx
+docs/Matriz_QA_Omnidesk_StatusTicket_Tags_Datas_Asteriscos_Execucao_Final_2026-10-15.xlsx
+!evidence/smtp-happy-2026-10-15T19-58-09-162Z/
+!evidence/smtp-happy-2026-10-15T19-58-09-162Z/**
+!reports/smtp-happy-2026-10-15T19-58-09-162Z.html
+!reports/smtp-happy-2026-10-15T19-58-09-162Z.json
+docs/~$*

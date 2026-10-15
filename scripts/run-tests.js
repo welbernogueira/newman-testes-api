@@ -2,6 +2,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const newman = require('newman');
 const { redactJsonReport, redactHtmlReport } = require('./redact-report');
+const { createEvidenceRun, finalizeEvidenceRun, listCollectionCases } = require('./evidence');
 
 const root = path.resolve(__dirname, '..');
 const sourceCollection = path.join(root, 'postman', 'Omnidelicias-API.postman_collection.json');
@@ -100,16 +101,25 @@ if (group === 'smtp') options.folder = 'Omnidesk - Configurações SMTP';
 else if (!['all', 'happy', 'happy-read', 'smtp-happy'].includes(group)) options.folder = group;
 
 let completedRequests = 0;
+const plannedCases = listCollectionCases(parsed.item, options.folder || '');
+const evidenceRun = createEvidenceRun(root, group, stamp, plannedCases);
 const run = newman.run(options, (err, summary) => {
   if (err) {
     console.error('Erro ao executar Newman:', err.message);
+    redactJsonReport(jsonReport, envPath);
+    redactHtmlReport(htmlReport, envPath);
+    finalizeEvidenceRun(evidenceRun, jsonReport, selectedCollection, 'Newman encerrou com erro antes de concluir a rodada.');
+    console.log(`Evidências: ${evidenceRun.directory}`);
     process.exitCode = 1;
     return;
   }
   redactJsonReport(jsonReport, envPath);
   redactHtmlReport(htmlReport, envPath);
+  const scenarioEvidence = finalizeEvidenceRun(evidenceRun, jsonReport, selectedCollection);
   const failures = summary.run.stats.assertions.failed + summary.run.stats.tests.failed;
   console.log(`Relatórios: ${jsonReport} e ${htmlReport}`);
+  console.log(`Evidências: ${evidenceRun.directory}`);
+  console.log(`Cenários registrados: ${scenarioEvidence.length}`);
   console.log(`Requisições: ${summary.run.stats.requests.total}; falhas: ${summary.run.stats.requests.failed}; assertions com falha: ${summary.run.stats.assertions.failed}`);
   if (summary.run.failures.length || failures > 0 || summary.run.stats.requests.failed > 0) process.exitCode = 1;
 });

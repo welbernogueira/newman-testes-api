@@ -1,0 +1,25 @@
+{
+  "runId": "qa-execution-2026-10-15-status-ticket-final",
+  "workbook": "docs/Matriz_QA_Omnidesk_StatusTicket_Tags_Datas_Asteriscos_FINAL_2026-10-15.xlsx",
+  "sourceRowOrder": [
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "counts": {
+    "total": 5,
+    "APROVADO": 0,
+    "REPROVADO": 0,
+    "BLOQUEADO": 5,
+    "PENDENTE": 0,
+    "notVisuallyExecuted": 5
+  },
+  "interfaceAttempt": "http://localhost:4200/",
+  "observed": "A navegação para a página da Web foi cancelada; TCP listeners not found on localhost ports 4200 and 5173.",
+  "dependency": "Front-end de Status de Ticket acessível e autorizado para visualizar, cadastrar e editar.",
+  "mutatingRequestsSent": 0,
+  "screenshot": "preflight/frontend-localhost-4200-indisponivel.png",
+  "smtpHappyPath": "Aprovado separadamente: 6 requests, 12 assertions, DELETE final 204; ver docs/SMTP-HAPPY-PATH-REPORT.md."
+}

@@ -1,0 +1,22 @@
+{
+  "scenarioId": "CEN-02",
+  "workbookRow": 3,
+  "title": "Exibir tag colorida na coluna Descrição Status",
+  "status": "BLOQUEADO",
+  "excelVerdict": "⚠️ IMPEDIDO",
+  "expected": "Os valores da coluna devem ser apresentados em tags coloridas e permanecer legíveis.",
+  "observed": "BLOQUEADO. GET /omnidesk/status-ticket/lista respondeu 200 e retornou 10 registros com nome preenchido. A interface não carregou; descrição, cor e legibilidade das tags não puderam ser observadas.",
+  "prerequisite": "Foram encontrados 10 status com nome e 10 tags via API (HTTP 200). Isso não valida o componente, a paleta ou a legibilidade no front-end indisponível.",
+  "scenarioStepsExecuted": 0,
+  "scenarioSteps": [
+    "Acessar a tela Status de Ticket: BLOQUEADO; localhost:4200 não abriu.",
+    "Localizar a coluna Descrição Status: NÃO EXECUTADO.",
+    "Conferir apresentação e legibilidade dos valores: NÃO EXECUTADO."
+  ],
+  "writeRequestsSent": 0,
+  "evidence": [
+    "prints/resultado/01-interface-indisponivel.png",
+    "complementares/api-prechecks.json"
+  ],
+  "missingDependency": "Front-end de Status de Ticket acessível nesta API, com permissão de visualização/cadastro/edição."
+}

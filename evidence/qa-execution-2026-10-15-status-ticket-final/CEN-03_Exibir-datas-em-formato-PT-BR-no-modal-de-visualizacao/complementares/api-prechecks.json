@@ -1,0 +1,44 @@
+{
+  "scenarioId": "CEN-03",
+  "workbookRow": 4,
+  "requests": [
+    {
+      "purpose": "Status, valores de apoio e datas",
+      "method": "GET",
+      "path": "/omnidesk/status-ticket/lista",
+      "httpStatus": 200,
+      "records": 10,
+      "recordsWithName": 10,
+      "justificativaFieldTypes": {
+        "number": 10
+      },
+      "expectedLabelsFoundInJustificativaField": {
+        "Obrigatória": 0,
+        "Opcional": 0
+      },
+      "dateFieldsPresentAndParseable": {
+        "dataCadastro": 10,
+        "dataUpdate": 10
+      },
+      "fields": [
+        "dataCadastro",
+        "dataUpdate",
+        "id",
+        "idEmpresa",
+        "justificativa",
+        "nome",
+        "status",
+        "tipoStatus",
+        "tipoTicket"
+      ]
+    }
+  ],
+  "frontend": {
+    "attemptedUrl": "http://localhost:4200/",
+    "tcpListener4200": false,
+    "tcpListener5173": false,
+    "browserMessage": "A navegação para a página da Web foi cancelada",
+    "screenshot": "frontend-localhost-4200-indisponivel.png"
+  },
+  "interpretation": "Há 10 registros com dataCadastro e dataUpdate preenchidas e parseáveis na API. A renderização PT-BR depende da interface, que não está acessível."
+}

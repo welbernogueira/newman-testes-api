@@ -1,0 +1,22 @@
+{
+  "scenarioId": "CEN-03",
+  "workbookRow": 4,
+  "title": "Exibir datas em formato PT-BR no modal de visualização",
+  "status": "BLOQUEADO",
+  "excelVerdict": "⚠️ IMPEDIDO",
+  "expected": "As datas no modal devem ser exibidas em formato brasileiro (PT-BR), de forma consistente e legível. O padrão exato não foi especificado.",
+  "observed": "BLOQUEADO. GET /omnidesk/status-ticket/lista respondeu 200; 10/10 registros tinham dataCadastro e dataUpdate presentes e parseáveis. Não foi possível abrir o modal para verificar a apresentação em PT-BR.",
+  "prerequisite": "Há 10 registros com dataCadastro e dataUpdate preenchidas e parseáveis na API. A renderização PT-BR depende da interface, que não está acessível.",
+  "scenarioStepsExecuted": 0,
+  "scenarioSteps": [
+    "Acessar a tela Status de Ticket: BLOQUEADO; localhost:4200 não abriu.",
+    "Abrir o modal de visualização: NÃO EXECUTADO.",
+    "Conferir todas as datas em PT-BR: NÃO EXECUTADO; a API não valida o formato renderizado."
+  ],
+  "writeRequestsSent": 0,
+  "evidence": [
+    "prints/resultado/01-interface-indisponivel.png",
+    "complementares/api-prechecks.json"
+  ],
+  "missingDependency": "Front-end de Status de Ticket acessível nesta API, com permissão de visualização/cadastro/edição."
+}

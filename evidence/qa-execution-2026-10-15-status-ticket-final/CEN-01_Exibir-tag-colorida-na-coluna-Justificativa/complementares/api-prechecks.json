@@ -1,0 +1,71 @@
+{
+  "scenarioId": "CEN-01",
+  "workbookRow": 2,
+  "requests": [
+    {
+      "purpose": "Existência e classificação das justificativas",
+      "method": "GET",
+      "path": "/omnidesk/justificativas?page=0&size=25",
+      "httpStatus": 200,
+      "records": 11,
+      "recordsWithName": 11,
+      "dateFieldsPresentAndParseable": {
+        "dataCadastro": 11,
+        "dataUpdate": 11
+      },
+      "tipoTicketDescricaoCounts": {
+        "Públicos": 8,
+        "Privados": 1,
+        "Públicos e Privados": 2
+      },
+      "fields": [
+        "dataCadastro",
+        "dataUpdate",
+        "id",
+        "idEmpresa",
+        "nome",
+        "status",
+        "tipoTicket",
+        "tipoTicketDescricao"
+      ]
+    },
+    {
+      "purpose": "Status, valores de apoio e datas",
+      "method": "GET",
+      "path": "/omnidesk/status-ticket/lista",
+      "httpStatus": 200,
+      "records": 10,
+      "recordsWithName": 10,
+      "justificativaFieldTypes": {
+        "number": 10
+      },
+      "expectedLabelsFoundInJustificativaField": {
+        "Obrigatória": 0,
+        "Opcional": 0
+      },
+      "dateFieldsPresentAndParseable": {
+        "dataCadastro": 10,
+        "dataUpdate": 10
+      },
+      "fields": [
+        "dataCadastro",
+        "dataUpdate",
+        "id",
+        "idEmpresa",
+        "justificativa",
+        "nome",
+        "status",
+        "tipoStatus",
+        "tipoTicket"
+      ]
+    }
+  ],
+  "frontend": {
+    "attemptedUrl": "http://localhost:4200/",
+    "tcpListener4200": false,
+    "tcpListener5173": false,
+    "browserMessage": "A navegação para a página da Web foi cancelada",
+    "screenshot": "frontend-localhost-4200-indisponivel.png"
+  },
+  "interpretation": "A API encontrou 11 justificativas e 10 status. A condição específica Obrigatória/Opcional não foi comprovada: justificativa veio como número. O front-end também está indisponível."
+}

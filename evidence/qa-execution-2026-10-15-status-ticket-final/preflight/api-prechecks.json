@@ -1,0 +1,102 @@
+{
+  "runId": "qa-execution-2026-10-15-status-ticket-final",
+  "checkedDate": "2026-10-15",
+  "source": "Postman collection omnidesk-api; login and read-only GET requests",
+  "environment": "OMNIDESK local export; credentials and tokens omitted",
+  "scope": "Pré-check autenticado somente de leitura. Nenhum cenário visual foi executado e nenhuma operação de escrita foi enviada.",
+  "backendHealth": {
+    "url": "http://localhost:8080/actuator/health",
+    "httpStatus": 200
+  },
+  "frontend": {
+    "attemptedUrl": "http://localhost:4200/",
+    "tcpListener4200": false,
+    "tcpListener5173": false,
+    "browserMessage": "A navegação para a página da Web foi cancelada",
+    "screenshot": "frontend-localhost-4200-indisponivel.png"
+  },
+  "requests": [
+    {
+      "purpose": "Autenticação para pré-checks (token mantido somente em memória)",
+      "method": "POST",
+      "path": "/oauth/login",
+      "httpStatus": 200,
+      "tokenPersisted": false
+    },
+    {
+      "purpose": "Existência de tags",
+      "method": "GET",
+      "path": "/omnidesk/tags?search=&page=0&size=10",
+      "httpStatus": 200,
+      "records": 10,
+      "recordsWithName": 10,
+      "fields": [
+        "id",
+        "nome",
+        "status"
+      ]
+    },
+    {
+      "purpose": "Existência e classificação das justificativas",
+      "method": "GET",
+      "path": "/omnidesk/justificativas?page=0&size=25",
+      "httpStatus": 200,
+      "records": 11,
+      "recordsWithName": 11,
+      "dateFieldsPresentAndParseable": {
+        "dataCadastro": 11,
+        "dataUpdate": 11
+      },
+      "tipoTicketDescricaoCounts": {
+        "Públicos": 8,
+        "Privados": 1,
+        "Públicos e Privados": 2
+      },
+      "fields": [
+        "dataCadastro",
+        "dataUpdate",
+        "id",
+        "idEmpresa",
+        "nome",
+        "status",
+        "tipoTicket",
+        "tipoTicketDescricao"
+      ]
+    },
+    {
+      "purpose": "Status, valores de apoio e datas",
+      "method": "GET",
+      "path": "/omnidesk/status-ticket/lista",
+      "httpStatus": 200,
+      "records": 10,
+      "recordsWithName": 10,
+      "justificativaFieldTypes": {
+        "number": 10
+      },
+      "expectedLabelsFoundInJustificativaField": {
+        "Obrigatória": 0,
+        "Opcional": 0
+      },
+      "dateFieldsPresentAndParseable": {
+        "dataCadastro": 10,
+        "dataUpdate": 10
+      },
+      "fields": [
+        "dataCadastro",
+        "dataUpdate",
+        "id",
+        "idEmpresa",
+        "justificativa",
+        "nome",
+        "status",
+        "tipoStatus",
+        "tipoTicket"
+      ]
+    }
+  ],
+  "newmanPrecheck": {
+    "assertionsFailed": 0,
+    "requestsFailed": 0
+  },
+  "interpretation": "HTTP 200 e presença de dados confirmam somente pré-requisitos da API. Não comprovam cores, datas renderizadas em PT-BR nem asteriscos dos formulários."
+}

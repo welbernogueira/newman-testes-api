@@ -13,16 +13,17 @@ npm run test:happy:read
 
 O grupo executa login e os GETs candidatos. Os relatórios HTML e JSON são gerados em `reports/`, com corpos, headers e valores de ambiente removidos.
 
-## Cenários e cobertura
+## Evidências de execução
 
-O gerador cria uma suite inicial por método/rota e o inventário dos endpoints:
+Cada execução cria `evidence/<grupo>-<data>/`, com uma subpasta por cenário registrado pelo Newman. O `RESUMO.md` lista os cenários na ordem executada e conta os status `APROVADO`, `REPROVADO`, `BLOQUEADO` e `PENDENTE`. Cada subpasta reserva locais para vídeo, capturas por etapa, resultado final e arquivos complementares. Um cenário só fica `APROVADO` quando há resposta e ao menos uma validação Newman aprovada; sem resposta ou validação, fica `BLOQUEADO`.
 
-```powershell
-node scripts/generate-happy-path-suite.js
-npm run validate
-```
+O dossiê inclui todos os itens do escopo selecionado na coleção, mesmo quando o fluxo para antes de executá-los. Itens posteriores a uma etapa bloqueada ficam `BLOQUEADO`, com o motivo registrado; outros itens não iniciados ficam `PENDENTE`.
 
-Consulte [docs/ENDPOINT-CATALOG.md](docs/ENDPOINT-CATALOG.md), [docs/TEST-STRATEGY.md](docs/TEST-STRATEGY.md) e [docs/KNOWN-LIMITATIONS.md](docs/KNOWN-LIMITATIONS.md).
+## Matriz QA — execução final de 2026-10-15
+
+A planilha oficial preenchida preserva a ordem e o formato de origem: [Matriz QA final](docs/Matriz_QA_Omnidesk_StatusTicket_Tags_Datas_Asteriscos_FINAL_2026-10-15.xlsx). O resultado auditável e as evidências por linha estão em [RESUMO.md](evidence/qa-execution-2026-10-15-status-ticket-final/RESUMO.md).
+
+Foram registrados 5 cenários BLOQUEADOS, 0 aprovados e 0 reprovados. A API local e os pré-requisitos de dados responderam; a interface de Status de Ticket não estava acessível nas origens locais testadas. Como os cenários são visuais, nenhum recebeu aprovação com base apenas na API. A evidência inclui a captura real da tentativa de abertura e o motivo para a ausência de vídeos de cenário.
 
 ## SMTP: happy path CRUD
 

@@ -30,7 +30,7 @@ function redactJsonReport(file, environmentFile) {
     if (!value || typeof value !== 'object') return value;
     const clean = {};
     for (const [key, child] of Object.entries(value)) {
-      if (/^(body|headers|auth|certificate|environment|variable|globals|stack|stacktrace)$/i.test(key)) clean[key] = '[redacted]';
+      if (/^(body|headers?|stream|auth|certificate|environment|variable|globals|stack|stacktrace)$/i.test(key)) clean[key] = '[redacted]';
       else if (/(password|username|secret|access.?token|refresh.?token|authorization|cookie)/i.test(key)) clean[key] = '[redacted]';
       else clean[key] = redact(child);
     }
